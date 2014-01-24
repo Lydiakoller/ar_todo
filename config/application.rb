@@ -25,3 +25,6 @@ end
 
 ActiveRecord::Base.establish_connection :adapter  => 'sqlite3',
                                         :database => DB_PATH
+ Dir[File.join(File.dirname(__FILE__), 'app/controllers/*.rb')].each do |model_file|
+    require model_file
+  end

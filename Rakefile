@@ -36,8 +36,31 @@ end
 
 desc 'Start IRB with application environment loaded'
 task "console" do
-  exec "irb -r./config/application"
+   # force the database connection now that the models are loaded.
+  ActiveRecord::Base.retrieve_connection
+ 
+  # log sql activity to standard output
+  ActiveRecord::Base.logger = Logger.new(STDOUT)
+ 
+  # load any model file found in app/models
+  Dir[File.join(File.dirname(__FILE__), 'app/models/*.rb')].each do |model_file|
+    require model_file
+  end
+
+   Dir[File.join(File.dirname(__FILE__), 'app/controllers/*.rb')].each do |model_file|
+    require model_file
+  end
+ 
+  # start IRB in this context
+  require 'irb'
+  ARGV.clear
+  IRB.start
+
+  #exec "irb -r./config/application"
 end
+
+desc 'start over'
+task "db:fuckit" => ["db:drop", "db:create", "db:migrate", "db:seed"]
 
 desc "Run the specs"
 RSpec::Core::RakeTask.new(:spec)
